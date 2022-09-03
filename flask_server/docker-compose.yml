@@ -1,0 +1,41 @@
+version: '3.7'
+
+
+services:
+  db:
+    image: postgres:13.3-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file: .env
+    ports:
+      - "54322:5432"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "
+        python manager.py create_db
+        && python main.py
+      "
+    ports:
+      - "8001:5000"
+    env_file: .env
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    command: 'python -u consumer.py'
+    depends_on:
+      - db
+
+
+volumes:
+  postgres_data:
