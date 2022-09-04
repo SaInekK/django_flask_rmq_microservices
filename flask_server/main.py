@@ -34,7 +34,7 @@ class ProductUser(db.Model):
     user_id = db.Column(db.Integer)
     product_id = db.Column(db.Integer)
 
-    UniqueConstraint('user_id', 'product_id', name='user_product_unique')
+    db.UniqueConstraint(user_id, product_id, name='user_product_unique')
 
 
 @app.route('/api/products')
@@ -55,7 +55,7 @@ def like(id):
         publish('product_liked', id)
     except Exception as e:
         print(e)
-        abort(400, 'You already liked this product')
+        abort(400, 'Error')
 
     return jsonify({
         'message': 'success'
